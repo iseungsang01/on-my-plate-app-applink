@@ -62,15 +62,31 @@
     // 앱이 바로 열리고, 미설치/미검증 기기에서만 이 폴백 페이지가 보인다.
     var params = new URLSearchParams(location.search);
     var code = (params.get("code") || "").trim().toUpperCase();
+    var noApp = params.get("noapp") === "1";
     var codeEl = document.getElementById("code");
     var openApp = document.getElementById("openApp");
+
+    // 앱을 여는 URL. intent://는 Chromium 계열(카카오톡 인앱 브라우저 포함)에서 앱을 직접 실행하고,
+    // 미설치면 browser_fallback_url로 되돌아온다(무한 리다이렉트 방지 위해 noapp=1을 달아 다시 열지 않음).
+    function appLaunchUrl(c) {
+      var fb = location.origin + location.pathname + "?code=" + encodeURIComponent(c) + "&noapp=1";
+      return "intent://group/join?code=" + encodeURIComponent(c) +
+        "#Intent;scheme=planat;package=com.lss.onmyplate.nativeplanner;" +
+        "S.browser_fallback_url=" + encodeURIComponent(fb) + ";end";
+    }
+
     if (code) {
       codeEl.textContent = code;
-      openApp.href = "planat://group/join?code=" + encodeURIComponent(code);
+      openApp.href = appLaunchUrl(code);
+      // 링크로 들어오면 앱을 자동으로 열어본다(되돌아온 경우 noapp=1이라 자동 실행하지 않음).
+      if (!noApp) {
+        setTimeout(function () { window.location.href = appLaunchUrl(code); }, 500);
+      }
     } else {
       codeEl.textContent = "코드 없음";
       openApp.style.display = "none";
     }
+
     codeEl.addEventListener("click", function () {
       if (!code) return;
       navigator.clipboard && navigator.clipboard.writeText(code).then(function () {

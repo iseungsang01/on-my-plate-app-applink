@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>약속 바구니 초대</title>
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo",
+        "Noto Sans KR", sans-serif;
+      background: #f4f6f8; color: #1b1f24; padding: 24px;
+    }
+    @media (prefers-color-scheme: dark) { body { background: #14171a; color: #e8eaed; } }
+    .card {
+      width: 100%; max-width: 380px; background: #fff; border-radius: 20px; padding: 28px 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.12); text-align: center;
+    }
+    @media (prefers-color-scheme: dark) { .card { background: #1e2226; box-shadow: 0 12px 40px rgba(0,0,0,.5); } }
+    .brand { font-size: 14px; letter-spacing: .04em; color: #4b9e7e; font-weight: 700; margin-bottom: 6px; }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    .sub { font-size: 14px; opacity: .7; margin: 0 0 22px; }
+    .codebox {
+      font-size: 30px; font-weight: 800; letter-spacing: .18em; padding: 16px; border-radius: 14px;
+      background: #eef4f1; color: #2f6b52; margin-bottom: 8px; user-select: all;
+    }
+    @media (prefers-color-scheme: dark) { .codebox { background: #223029; color: #7fd0ac; } }
+    .hint { font-size: 12.5px; opacity: .6; margin: 0 0 22px; }
+    a.btn, button.btn {
+      display: block; width: 100%; padding: 14px; border-radius: 999px; border: none;
+      font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none; margin-top: 10px;
+    }
+    .primary { background: #4b9e7e; color: #fff; }
+    .ghost { background: transparent; color: #4b9e7e; border: 1.5px solid #4b9e7e; }
+    .steps { text-align: left; font-size: 13px; opacity: .8; margin: 22px 2px 0; line-height: 1.7; }
+    .steps b { color: #4b9e7e; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">약속 바구니</div>
+    <h1>가용시간 그룹 초대</h1>
+    <p class="sub">아래 코드로 그룹에 참여하세요</p>
+
+    <div class="codebox" id="code">------</div>
+    <p class="hint" id="copyhint">코드를 눌러 복사</p>
+
+    <a class="btn primary" id="openApp" href="#">앱에서 바로 열기</a>
+    <a class="btn ghost" id="install"
+       href="https://play.google.com/store/apps/details?id=com.lss.onmyplate.nativeplanner">앱 설치하기</a>
+
+    <div class="steps">
+      <div>앱이 이미 설치돼 있다면 <b>[앱에서 바로 열기]</b>를 누르세요.</div>
+      <div>안 열리면 앱에서 <b>공유 › 코드로 참여</b>를 열고 위 코드를 입력하면 됩니다.</div>
+    </div>
+  </main>
+
+  <script>
+    // 초대 링크는 https://<이 사이트>/?code=XXXXXX 형태. App Links가 검증되면 이 페이지가 뜨기 전에
+    // 앱이 바로 열리고, 미설치/미검증 기기에서만 이 폴백 페이지가 보인다.
+    var params = new URLSearchParams(location.search);
+    var code = (params.get("code") || "").trim().toUpperCase();
+    var codeEl = document.getElementById("code");
+    var openApp = document.getElementById("openApp");
+    if (code) {
+      codeEl.textContent = code;
+      openApp.href = "planat://group/join?code=" + encodeURIComponent(code);
+    } else {
+      codeEl.textContent = "코드 없음";
+      openApp.style.display = "none";
+    }
+    codeEl.addEventListener("click", function () {
+      if (!code) return;
+      navigator.clipboard && navigator.clipboard.writeText(code).then(function () {
+        document.getElementById("copyhint").textContent = "복사됨 ✓";
+      });
+    });
+  </script>
+</body>
+</html>
